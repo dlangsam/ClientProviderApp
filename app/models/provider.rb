@@ -1,4 +1,7 @@
 class Provider < ApplicationRecord
+  has_many :provider_assignments, dependent: :destroy
+  has_many :clients, through: :provider_assignments
+
   validates :name, presence: true
   validates :email, presence: true,
                     uniqueness: { case_sensitive: false },
