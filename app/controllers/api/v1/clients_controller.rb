@@ -4,23 +4,22 @@ module Api
       include Paginatable
 
       def show
-        client = Client.includes(:providers, :provider_assignments).find(params[:id])
-        paginated_providers = paginate_array(client.providers.to_a)
+        client = Client.includes(provider_assignments: :provider).find(params[:id])
+        paginated_assignments = paginate_array(client.provider_assignments.to_a)
 
         render json: {
           id: client.id,
           name: client.name,
           email: client.email,
-          providers: paginated_providers.map do |provider|
-            assignment = client.provider_assignments.find_by(provider: provider)
+          providers: paginated_assignments.map do |assignment|
             {
-              id: provider.id,
-              name: provider.name,
-              email: provider.email,
+              id: assignment.provider.id,
+              name: assignment.provider.name,
+              email: assignment.provider.email,
               plan: assignment.plan
             }
           end,
-          pagination: pagination_meta_for_array(client.providers.to_a)
+          pagination: pagination_meta_for_array(client.provider_assignments.to_a)
         }
       rescue ActiveRecord::RecordNotFound
         render json: { error: 'Client not found' }, status: :not_found
