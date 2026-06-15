@@ -71,16 +71,28 @@ RSpec.describe "Api::V1::Notes", type: :request do
 
       expect(response).to have_http_status(:ok)
       json = JSON.parse(response.body)
-      expect(json.length).to eq(3)
+      expect(json['notes'].length).to eq(3)
+      expect(json['pagination']).to be_present
     end
 
     it "returns notes sorted by date (newest first)" do
       get "/api/v1/clients/#{client.id}/notes"
 
       json = JSON.parse(response.body)
-      expect(json[0]['content']).to eq("Third note")
-      expect(json[1]['content']).to eq("Second note")
-      expect(json[2]['content']).to eq("First note")
+      notes = json['notes']
+      expect(notes[0]['content']).to eq("Third note")
+      expect(notes[1]['content']).to eq("Second note")
+      expect(notes[2]['content']).to eq("First note")
+    end
+
+    it "supports pagination parameters" do
+      get "/api/v1/clients/#{client.id}/notes?page=1&per_page=2"
+
+      json = JSON.parse(response.body)
+      expect(json['notes'].length).to eq(2)
+      expect(json['pagination']['current_page']).to eq(1)
+      expect(json['pagination']['per_page']).to eq(2)
+      expect(json['pagination']['total_count']).to eq(3)
     end
 
     context "with non-existent client" do
@@ -119,32 +131,44 @@ RSpec.describe "Api::V1::Notes", type: :request do
 
       expect(response).to have_http_status(:ok)
       json = JSON.parse(response.body)
-      expect(json.length).to eq(3)
+      expect(json['notes'].length).to eq(3)
+      expect(json['pagination']).to be_present
     end
 
     it "returns notes sorted by date (newest first)" do
       get "/api/v1/providers/#{provider.id}/notes"
 
       json = JSON.parse(response.body)
-      expect(json[0]['content']).to eq("Client 1 newer note")
-      expect(json[1]['content']).to eq("Client 2 note")
-      expect(json[2]['content']).to eq("Client 1 note")
+      notes = json['notes']
+      expect(notes[0]['content']).to eq("Client 1 newer note")
+      expect(notes[1]['content']).to eq("Client 2 note")
+      expect(notes[2]['content']).to eq("Client 1 note")
     end
 
     it "includes client information" do
       get "/api/v1/providers/#{provider.id}/notes"
 
       json = JSON.parse(response.body)
-      expect(json[0]['client_id']).to be_present
-      expect(json[0]['client_name']).to be_present
+      notes = json['notes']
+      expect(notes[0]['client_id']).to be_present
+      expect(notes[0]['client_name']).to be_present
     end
 
     it "does not include notes from clients not assigned to the provider" do
       get "/api/v1/providers/#{provider.id}/notes"
 
       json = JSON.parse(response.body)
-      contents = json.map { |n| n['content'] }
+      contents = json['notes'].map { |n| n['content'] }
       expect(contents).not_to include("Other client note")
+    end
+
+    it "supports pagination parameters" do
+      get "/api/v1/providers/#{provider.id}/notes?page=1&per_page=2"
+
+      json = JSON.parse(response.body)
+      expect(json['notes'].length).to eq(2)
+      expect(json['pagination']['current_page']).to eq(1)
+      expect(json['pagination']['per_page']).to eq(2)
     end
 
     context "with non-existent provider" do

@@ -1,6 +1,7 @@
 module Api
   module V1
     class NotesController < ApplicationController
+      include Paginatable
       # POST /api/v1/clients/:client_id/notes
       def create
         client = Client.find(params[:client_id])
@@ -24,14 +25,18 @@ module Api
       def index_for_client
         client = Client.find(params[:client_id])
         notes = client.notes.sorted_by_date
+        paginated_notes = paginate(notes)
 
-        render json: notes.map { |note|
-          {
-            id: note.id,
-            content: note.content,
-            created_at: note.created_at,
-            client_id: note.client_id
-          }
+        render json: {
+          notes: paginated_notes.map { |note|
+            {
+              id: note.id,
+              content: note.content,
+              created_at: note.created_at,
+              client_id: note.client_id
+            }
+          },
+          pagination: pagination_meta(notes)
         }
       rescue ActiveRecord::RecordNotFound
         render json: { error: 'Client not found' }, status: :not_found
@@ -40,16 +45,20 @@ module Api
       # GET /api/v1/providers/:id/notes
       def index_for_provider
         provider = Provider.includes(clients: :notes).find(params[:id])
-        notes = provider.clients.flat_map(&:notes).sort_by(&:created_at).reverse
+        all_notes = provider.clients.flat_map(&:notes).sort_by(&:created_at).reverse
+        paginated_notes = paginate_array(all_notes)
 
-        render json: notes.map { |note|
-          {
-            id: note.id,
-            content: note.content,
-            created_at: note.created_at,
-            client_id: note.client_id,
-            client_name: note.client.name
-          }
+        render json: {
+          notes: paginated_notes.map { |note|
+            {
+              id: note.id,
+              content: note.content,
+              created_at: note.created_at,
+              client_id: note.client_id,
+              client_name: note.client.name
+            }
+          },
+          pagination: pagination_meta_for_array(all_notes)
         }
       rescue ActiveRecord::RecordNotFound
         render json: { error: 'Provider not found' }, status: :not_found
