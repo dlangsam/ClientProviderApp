@@ -5,7 +5,7 @@ module Api
 
       def show
         provider = Provider.find(params[:id])
-        paginated_assignments = provider.provider_assignments.includes(:client).page(params[:page]).per(params[:per_page])
+        paginated_assignments = provider.provider_assignments.recent.includes(:client).page(params[:page]).per(params[:per_page])
 
         render json: {
           id: provider.id,
