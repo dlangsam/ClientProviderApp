@@ -24,8 +24,7 @@ module Api
       # GET /api/v1/clients/:client_id/notes
       def index_for_client
         client = Client.find(params[:client_id])
-        notes = client.notes.sorted_by_date
-        paginated_notes = paginate(notes)
+        paginated_notes = client.notes.sorted_by_date.page(params[:page]).per(params[:per_page])
 
         render json: {
           notes: paginated_notes.map { |note|
@@ -36,7 +35,7 @@ module Api
               client_id: note.client_id
             }
           },
-          pagination: pagination_meta(notes)
+          pagination: pagination_meta(paginated_notes)
         }
       rescue ActiveRecord::RecordNotFound
         render json: { error: 'Client not found' }, status: :not_found
@@ -44,9 +43,12 @@ module Api
 
       # GET /api/v1/providers/:id/notes
       def index_for_provider
-        provider = Provider.includes(clients: :notes).find(params[:id])
-        all_notes = provider.clients.flat_map(&:notes).sort_by(&:created_at).reverse
-        paginated_notes = paginate_array(all_notes)
+        provider = Provider.find(params[:id])
+        paginated_notes = Note.joins(client: { provider_assignments: :provider })
+                              .where(provider_assignments: { provider_id: provider.id })
+                              .includes(:client)
+                              .order(created_at: :desc)
+                              .page(params[:page]).per(params[:per_page])
 
         render json: {
           notes: paginated_notes.map { |note|
@@ -58,7 +60,7 @@ module Api
               client_name: note.client.name
             }
           },
-          pagination: pagination_meta_for_array(all_notes)
+          pagination: pagination_meta(paginated_notes)
         }
       rescue ActiveRecord::RecordNotFound
         render json: { error: 'Provider not found' }, status: :not_found

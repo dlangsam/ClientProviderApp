@@ -38,6 +38,9 @@ gem "image_processing", "~> 1.2"
 # Email validation
 gem "valid_email2"
 
+# Pagination
+gem "kaminari"
+
 group :development, :test do
   # RSpec for testing
   gem "rspec-rails", "~> 7.0"
