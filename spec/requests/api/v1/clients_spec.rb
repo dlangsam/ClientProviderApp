@@ -38,7 +38,7 @@ RSpec.describe "Api::V1::Clients", type: :request do
         json = JSON.parse(response.body)
 
         plans = json['providers'].map { |p| p['plan'] }
-        expect(plans).to match_array(['basic', 'premium'])
+        expect(plans).to match_array([ 'basic', 'premium' ])
       end
 
       it "includes provider details" do

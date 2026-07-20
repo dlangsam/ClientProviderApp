@@ -8,6 +8,6 @@ class CreateProviderAssignments < ActiveRecord::Migration[8.1]
       t.timestamps
     end
 
-    add_index :provider_assignments, [:provider_id, :client_id], unique: true
+    add_index :provider_assignments, [ :provider_id, :client_id ], unique: true
   end
 end

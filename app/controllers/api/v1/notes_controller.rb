@@ -18,7 +18,7 @@ module Api
           render json: { errors: note.errors.full_messages }, status: :unprocessable_entity
         end
       rescue ActiveRecord::RecordNotFound
-        render json: { error: 'Client not found' }, status: :not_found
+        render json: { error: "Client not found" }, status: :not_found
       end
 
       # GET /api/v1/clients/:client_id/notes
@@ -38,7 +38,7 @@ module Api
           pagination: pagination_meta(paginated_notes)
         }
       rescue ActiveRecord::RecordNotFound
-        render json: { error: 'Client not found' }, status: :not_found
+        render json: { error: "Client not found" }, status: :not_found
       end
 
       # GET /api/v1/providers/:id/notes
@@ -63,7 +63,7 @@ module Api
           pagination: pagination_meta(paginated_notes)
         }
       rescue ActiveRecord::RecordNotFound
-        render json: { error: 'Provider not found' }, status: :not_found
+        render json: { error: "Provider not found" }, status: :not_found
       end
 
       private

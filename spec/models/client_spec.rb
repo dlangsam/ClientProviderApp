@@ -30,7 +30,7 @@ RSpec.describe Client, type: :model do
       end
 
       it 'accepts valid email addresses' do
-        valid_emails = ['user@example.com', 'test.user+tag@domain.co.uk']
+        valid_emails = [ 'user@example.com', 'test.user+tag@domain.co.uk' ]
         valid_emails.each do |email|
           subject.email = email
           expect(subject).to be_valid

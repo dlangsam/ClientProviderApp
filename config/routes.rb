@@ -8,13 +8,13 @@ Rails.application.routes.draw do
   # API routes
   namespace :api do
     namespace :v1 do
-      resources :providers, only: [:show] do
-        get 'notes', to: 'notes#index_for_provider', on: :member
+      resources :providers, only: [ :show ] do
+        get "notes", to: "notes#index_for_provider", on: :member
       end
 
-      resources :clients, only: [:show] do
-        resources :notes, only: [:create] do
-          get '/', action: :index_for_client, on: :collection
+      resources :clients, only: [ :show ] do
+        resources :notes, only: [ :create ] do
+          get "/", action: :index_for_client, on: :collection
         end
       end
     end

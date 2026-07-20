@@ -29,7 +29,7 @@ RSpec.describe Note, type: :model do
       note3 = create(:note, client: client, created_at: Time.current)
 
       notes = Note.sorted_by_date
-      expect(notes).to eq([note3, note2, note1])
+      expect(notes).to eq([ note3, note2, note1 ])
     end
   end
 end

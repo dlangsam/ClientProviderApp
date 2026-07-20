@@ -22,7 +22,7 @@ module Api
           pagination: pagination_meta(paginated_assignments)
         }
       rescue ActiveRecord::RecordNotFound
-        render json: { error: 'Provider not found' }, status: :not_found
+        render json: { error: "Provider not found" }, status: :not_found
       end
     end
   end
